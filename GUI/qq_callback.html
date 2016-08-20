@@ -1,0 +1,11 @@
+<meta property="qc:admins" content="66217334446654236375711731767167" />
+<script>
+    var res =document.URL.match(/\?code=(\w+)&state=(\w+)/);
+    var data ={
+        "code":res[1],
+        "token":res[2],
+    };
+    window.opener.SIGNIN(data);
+    window.open('/','_self');
+    window.close();
+</script>

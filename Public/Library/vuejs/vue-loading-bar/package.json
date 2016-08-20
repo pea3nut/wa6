@@ -1,0 +1,23 @@
+{
+  "name": "vue-loading-bar",
+  "version": "1.0.0",
+  "description": "Youtube Like Loading Bar Component for Vue.Js",
+  "main": "vue-loading-bar.vue",
+  "keywords": [
+    "vuejs",
+    "loading",
+    "loading bar",
+    "component",
+    "progress"
+  ],
+  "author": "Bos Naufal <bosnaufalemail@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BosNaufal/vue-loading-bar.git"
+  },
+  "bugs": {
+    "url": "https://github.com/BosNaufal/vue-loading-bar/issues"
+  },
+  "homepage": "https://github.com/BosNaufal/vue-loading-bar#readme"
+}

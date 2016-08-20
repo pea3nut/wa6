@@ -1,0 +1,25 @@
+{
+    "Web开发":{
+        "Web开发资源":{
+            "开发工具":"/web/tool",
+            "视频教程":"/web/video",
+            "参考手册":"/web/manual"
+        },
+        "开始":{
+            "什么是Web开发":"/web/whatis",
+            "是否适合我":"/web/rightforme",
+            "如何开始学习":"/web/howtostart"
+        },
+        "Web开发 x 协会":{
+            "开发规范":"/web/developrules",
+            "在线工具":"/web/onlinetools",
+            "建设这个网站":"/web/constructthis"
+        }
+    },
+    "协会":{
+        "协会简介":"/about/brief",
+        "加入我们":"/about/joinus",
+        "收支情况":"/static/profit",
+        "历史 & 大事记":"/static/history"
+    }
+}

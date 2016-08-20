@@ -1,0 +1,7 @@
+/.settings/*
+/.idea/*
+/API/Application/Runtime/*
+.buildpath
+.project
+.sass-cache
+/API/Application/Home/Conf/config.php

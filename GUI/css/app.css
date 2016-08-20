@@ -1,0 +1,67 @@
+#main .my-body, #main .markdown-body {
+  background-color: #fff;
+  min-height: 720px; }
+#main .markdown-body {
+  background-color: #FFFEE9;
+  box-shadow: -1px -1px 6px #222 inset; }
+#main .markdown-body p {
+  text-indent: 2em;
+  line-height: 1.8em;
+  margin-bottom: 15px; }
+#main .header-block {
+  font-size: 18px; }
+#main .header-block li a {
+  text-decoration: none;
+  font-size: 16px;
+  margin-bottom: 2px; }
+#main .copyright-basic {
+  background-color: #fff;
+  color: #666;
+  font-size: 0.8em;
+  margin: 100px 0 -5px;
+  padding: 20px 0 5px;
+  text-align: center; }
+#main .nutjs-nav-basic .dropdown-header {
+  background-color: #555;
+  color: #fff; }
+#main .nutjs-nav-basic a.navbar-brand-nutjs_ico {
+  padding: 12px 9px 15px 15px; }
+#main .nav-basic-laceholder {
+  margin: 0 !important;
+  padding: 0 !important;
+  height: 65px; }
+#main .main-basic-carousel {
+  padding: 0;
+  margin-bottom: 15px; }
+
+.bg-star01 {
+  background: url("/image/bg-star01.jpg") repeat; }
+
+.bg-gray01 {
+  background: url("/image/bg-gray.png") repeat; }
+
+.alert-basic-modal .close {
+  color: #fff;
+  background-color: #df6e6e;
+  text-shadow: none;
+  width: 16px;
+  height: 16px;
+  opacity: 1;
+  margin: -10px -10px 0 0;
+  font-size: 16px;
+  position: relative; }
+  .alert-basic-modal .close:hover {
+    background-color: #f05a5a; }
+  .alert-basic-modal .close span {
+    position: relative;
+    top: -1px; }
+.alert-basic-modal .modal-dialog {
+  margin-top: 80px; }
+.alert-basic-modal .modal-body {
+  background-color: #222222;
+  color: #fff;
+  min-height: 350px; }
+  .alert-basic-modal .modal-body P {
+    margin-bottom: 0; }
+
+/*# sourceMappingURL=app.css.map */

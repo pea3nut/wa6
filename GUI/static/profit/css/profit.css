@@ -1,0 +1,41 @@
+@CHARSET "UTF-8";
+.my-body{
+    margin-top: 160px;
+}
+.profit-show{
+    text-align: center;
+    font-size: 30px;
+    margin-bottom: 70px;
+}
+#profit_num{
+    color: #137400;
+    font-size: 60px;
+}
+.nutjs-philosophy{
+    font-size: 20px;
+}
+.show-profit-list{
+    padding-top: 0;
+    padding-right: 0;
+    padding-bottom: 0;
+}
+.show-profit-list-value{
+    white-space:pre-wrap;
+    font-size: 1.3em;
+    height: 300px;
+    overflow:scroll;
+}
+.hr-nutjs{
+    background-color: #aa3600;
+    line-height: 25px;
+    margin:30px 0 160px 0;
+    color:#fff;
+    text-align: center;
+    letter-spacing: 2px;
+    padding:2px 0;
+}
+.hr-nutjs strong{
+    font-style: italic;
+    font-size: 1.2em;
+    margin:0 3px;
+}

@@ -1,0 +1,78 @@
+@CHARSET "UTF-8";
+*{
+    margin:0;
+    padding:0;
+}
+img {
+    vertical-align: middle;
+    border: 0 none;
+}
+a{
+    color:#1448ff;
+    text-decoration:underline;
+    text-align:center;
+    font-size:2em;
+    font-weight:900;
+}
+a:visited{
+    color:#1448ff;
+}
+ul,li{
+    display:inline-block;
+}
+#main div#tree{
+    max-width:1200px;
+    min-width:550px;
+    width:80%;
+    margin:0 auto;
+}
+#main{
+    position:relative;
+}
+#main > a{
+    position:absolute;
+    top:20px;
+    left:40px;
+    margin:0 auto;
+}
+#main div#timebase ul{
+    width:50%;
+    position:relative;
+    display: inline-block;
+}
+#main div#timebase ul li{
+    display:block;
+    z-index:9999;
+    position:absolute;
+}
+#main div#timebase ul#timebase_r li{
+    text-align:left;
+    left:12%;
+    color:#28602c;
+    background-image:url("../image/tree_sign_right.png");
+}
+#main div#timebase ul#timebase_l li{
+    text-align:right;
+    right:7%;
+    color:#28602c;
+    background-image:url("../image/tree_sign_left.png");
+}
+#main div#timebase ul li{
+    background-repeat:no-repeat;
+    background-size:100% 100%;
+    padding:1.1% 4% 2em 4% ;
+    /*padding:11% 8% 32% 7%;*/
+    display:inline-block;
+    min-height:2.5em;
+}
+#main div#tree div#tree_body{
+    width:100%;
+    background-image: url("../image/tree_body.jpg");
+    background-size: 100%;
+}
+#main div#tree img{
+    width:100%;
+}
+#main div#tree img#tree_body_tpl{
+    display: none;
+}
