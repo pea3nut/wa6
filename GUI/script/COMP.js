@@ -440,8 +440,6 @@ COMP["signout-basic"] =Vue.extend({
             console.log(transition);
             transition.abort();
             var that =this;
-            var callbackUrl ="http://mnt.nutjs.com/qq_sign_in/callback.php";
-            //var callbackUrl =location.protocol+"//"+location.host+"/qq_callback.html";
             var reqUrl ="/API/MemberControl/SignOut";
             VM['nutjs_alert'].$emit("start" ,"初始化队列");
             VM['nutjs_alert'].$emit("add" ,"向服务器发送注销请求求","请求地址为："+reqUrl,"&nbsp;","等待响应中...");
