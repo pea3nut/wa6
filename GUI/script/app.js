@@ -43,10 +43,7 @@ router.map({
             "route":{
                 "data":function(transition){
                     if(this.$route.query.login ==1){
-                        VM['user_check'].$emit("signin" ,function(){
-                            var exp =/[\?|&]login=1/;
-                            router.replace(transition.to.path.replace(exp,''));
-                        });
+                        VM['user_check'].$emit("signin");
                     };
                     transition.next();
                 },
@@ -197,9 +194,18 @@ $.fn.extend({
 
     },
 });
+VueRouter.prototype.goDefault =function(path ,replace){
+    var target =this._default_url ||path;
+    delete this._default_url;
+    replace ?this.replace(target) :this.go(target);
+};
+VueRouter.prototype.getThisPath =function(url){
+    var exp =/^.+?\/\/.+?(\/.*)$/
+    var path =url ||document.URL;
+    return path.match(exp)[1];
+};
+VueRouter.prototype.trackThis =function(){
+    this._default_url =this.getThisPath.apply(this ,arguments)
+};
 
-FUNC={};
-FUNC['signin'] =function(){
-
-}
 

@@ -50,13 +50,15 @@ COMP["user-check"] =Vue.extend({
         "state":null,
     }},
     "events":{
-        "hook:created":function(){
+        "hook:created":function(onSuccess){
             var vm =this;
             $.get("/API/MemberControl/GetStatus" ,function(reMsg){
                 vm.is_login =reMsg.is_login>0;
                 vm.state =reMsg.state;
+                onSuccess &&onSuccess();
                 if(vm.state =='100'){
-                    vm.$router.go('/member/signup');
+                    router.trackThis(document.URL.replace(/[\?|&]login=1/ ,''));
+                    router.go('/member/signup');
                 };
             });
         },
@@ -74,7 +76,10 @@ COMP["user-check"] =Vue.extend({
             var reqUrl ="/API/MemberControl/SignIn";
 
             VM['nutjs_alert'].$emit("refresh");
-            VM['nutjs_alert'].$emit("start" ,"初始化队列" ,callback);
+            VM['nutjs_alert'].$emit("start" ,"初始化队列" ,function(){
+                var exp =/[\?|&]login=1/;
+                router.replace(router.getThisPath().replace(exp ,"") ,true);
+            });
             VM['nutjs_alert'].$emit("add" ,"开始服务器请求","请求地址为："+reqUrl,"&nbsp;","等待响应中...");
 
             $.get(reqUrl ,function(reMsg){
@@ -94,9 +99,10 @@ COMP["user-check"] =Vue.extend({
                     };
                     VM['nutjs_alert'].$emit("add" ,"&nbsp;" ,"响应成功，获取最终登陆令牌","刷新状态中...");
                     $.get("/API/MemberControl/SignInReal?token="+data['token']+"&code="+data['code'],function(realMsg){
-                        VM['user_check'].$emit('hook:created');
-                        VM['nutjs_alert'].$emit("add" ,"&nbsp;" ,"刷新成功!");
-                        VM['nutjs_alert'].$emit("end" ,1000);
+                        VM['user_check'].$emit('hook:created' ,function(){
+                            VM['nutjs_alert'].$emit("add" ,"&nbsp;" ,"刷新成功!");
+                            VM['nutjs_alert'].$emit("end" ,1000);
+                        });
                         delete window.SIGNIN;
                     });
                 };
@@ -275,7 +281,7 @@ COMP["form-basic"] =function(resolve){
                     });
                 },
                 "signup_success":function(){
-                    router.go('/main');
+                    router.goDefault('/main' ,true);
                     VM['user_check'].$emit('hook:created');
                 },
                 "changeinfo_ready":function(){
@@ -394,13 +400,22 @@ COMP["md-basic"] =Vue.extend({
     },
     "data":function(){return {
         "md_file":"加载md文件中...",
+        "cache":{},
     }},
     "route":{
         "data":function(transition){
-            var data =this.$data;
-            data.md_file="加载md文件中...";
-            $.get("/API/MarkMaster/get/"+this.$route.params.path,function(reMsg){
-                data.md_file=reMsg;
+
+            if(this.cache[this.$route.params.path]){
+                this.md_file =this.cache[this.$route.params.path];
+                return;
+            };
+
+
+            var vm =this;
+            vm.md_file="加载md文件中...";
+            $.get("/API/MarkMaster/get/"+vm.$route.params.path,function(reMsg){
+
+                vm.md_file =vm.cache[vm.$route.params.path] =reMsg;
 
                 //增加索引
                 var pea =new jQuery.PeAIndex(3);
@@ -414,6 +429,7 @@ COMP["md-basic"] =Vue.extend({
 
                 transition.next();
             });
+
         },
     },
 });
