@@ -196,7 +196,7 @@ COMP["foot-basic"] =function(resolve){
         resolve(comp);
     });
 };
-COMP["md-basic"] =Vue.extend({
+COMP["markdown-body"] =Vue.extend({
     "template":function(){/*
         <article
             class="container markdown-body"
@@ -389,7 +389,7 @@ COMP["md-basic"] =Vue.extend({
     */}.parseString(),
     "components":{
         "nutjs-nav":COMP['nav-basic'],
-        "nutjs-md":COMP['md-basic'],
+        "nutjs-md":COMP['markdown-body'],
         "nutjs-foot":COMP['foot-basic'],
     },
     "data":function(){return {
@@ -401,6 +401,17 @@ COMP["md-basic"] =Vue.extend({
             data.md_file="加载md文件中...";
             $.get("/API/MarkMaster/get/"+this.$route.params.path,function(reMsg){
                 data.md_file=reMsg;
+
+                //增加索引
+                var pea =new jQuery.PeAIndex(3);
+                pea.addPrefix=true;
+                pea.prefix =pea.prefixTpl.zhTier;
+                pea.index();
+
+                //提高用户体验
+                $(".markdown-body a").prop("target" ,"_blank");
+                document.title =$("h1").html()+" - Web开发协会";
+
                 transition.next();
             });
         },
