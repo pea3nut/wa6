@@ -85,8 +85,9 @@ COMP["user-check"] =Vue.extend({
             $.get(reqUrl ,function(reMsg){
                 VM['nutjs_alert'].$emit("add" ,"&nbsp;" ,"服务器返回令牌："+reMsg['token'] ,"打开登陆链接");
                 window.open(
-                    "https://graph.qq.com/oauth2.0/authorize?response_type=code&client_id=101336709&redirect_uri="
-                        +encodeURIComponent(callbackUrl)
+                    "https://graph.qq.com/oauth2.0/authorize?response_type=code"
+                        +"&client_id="+CONF['client_id']
+                        +"&redirect_uri="+encodeURIComponent(callbackUrl)
                         +"&state="
                         +reMsg['token']
                     ,"_blank" ,"height=600,width=1000,top=0,left=0,toolbar=no,menubar=no,scrollbars=auto,resizable=yes,location=no,status=no"
