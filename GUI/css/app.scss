@@ -23,6 +23,79 @@
             margin: 12px;
         }
     }
+    .main-body{
+        @extend .my-body;
+        padding-top: 15px;
+        h2{
+            margin-bottom:20px;
+            .badge{
+                margin:-25px 0 0 5px;
+            }
+        }
+        .foot-link{
+            margin-top:20px;
+        }
+        .jumbotron{
+            &{
+                position: relative;
+                overflow: hidden;
+
+                .glyphicon{
+                    position: absolute;
+                    font-size:150px;
+                }
+
+            }
+
+            &.non-profit{
+                background-color: #f8e1cb;
+
+                .glyphicon{
+                    color: #dc7a24;
+                    right: -35px;
+                    top: -20px;
+                }
+
+            }
+            &.web{
+                background-color: #bbd7e3;
+
+                .glyphicon{
+                    color: #37a4d2;
+                    right: -30px;
+                    top: -20px;
+                }
+
+            }
+            &.geek{
+                background-color: #000;
+                color: #fff;
+
+                .glyphicon{
+                    font-size:200px;
+                    right: -20px;
+                    top: -75px;
+                }
+
+                .badge{
+                    background-color: #FFF;
+                    color: #000;
+                }
+
+            }
+            &.help{
+                background-color: #f6dbe1;
+
+                .glyphicon{
+                    color: #dc254c;
+                    right: -15px;
+                    top: -17px;
+                }
+
+            }
+
+        }
+    }
 
     .header-block{
         &{

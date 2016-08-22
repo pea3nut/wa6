@@ -1,4 +1,4 @@
-#main .my-body, #main .markdown-body {
+#main .my-body, #main .markdown-body, #main .main-body {
   background-color: #fff;
   min-height: 720px; }
 #main .markdown-body {
@@ -14,6 +14,48 @@
 #main .markdown-body h1, #main .markdown-body h2, #main .markdown-body h3 {
   margin: 15px;
   margin: 12px; }
+#main .main-body {
+  padding-top: 15px; }
+  #main .main-body h2 {
+    margin-bottom: 20px; }
+    #main .main-body h2 .badge {
+      margin: -25px 0 0 5px; }
+  #main .main-body .foot-link {
+    margin-top: 20px; }
+  #main .main-body .jumbotron {
+    position: relative;
+    overflow: hidden; }
+    #main .main-body .jumbotron .glyphicon {
+      position: absolute;
+      font-size: 150px; }
+  #main .main-body .jumbotron.non-profit {
+    background-color: #f8e1cb; }
+    #main .main-body .jumbotron.non-profit .glyphicon {
+      color: #dc7a24;
+      right: -35px;
+      top: -20px; }
+  #main .main-body .jumbotron.web {
+    background-color: #bbd7e3; }
+    #main .main-body .jumbotron.web .glyphicon {
+      color: #37a4d2;
+      right: -30px;
+      top: -20px; }
+  #main .main-body .jumbotron.geek {
+    background-color: #000;
+    color: #fff; }
+    #main .main-body .jumbotron.geek .glyphicon {
+      font-size: 200px;
+      right: -20px;
+      top: -75px; }
+    #main .main-body .jumbotron.geek .badge {
+      background-color: #FFF;
+      color: #000; }
+  #main .main-body .jumbotron.help {
+    background-color: #f6dbe1; }
+    #main .main-body .jumbotron.help .glyphicon {
+      color: #dc254c;
+      right: -15px;
+      top: -17px; }
 #main .header-block {
   font-size: 18px; }
 #main .header-block li a {

@@ -33,12 +33,20 @@ COMP["main-basic"] =Vue.extend({
             </a>
         </div>
 
-        <div class="container my-body ">
-            main-basic组件my-body部分
-        </div>
+        <main-body></main-body>
     */}.parseString(),
     "created":function(){
         $("body").addClass("bg-gray01");
+    },
+    "components":{
+        "main-body":function(resolve){
+            $.get("/GUI/tpl/main-body.html" ,function(reMsg){
+                var comp =Vue.extend({
+                    "template":reMsg,
+                });
+                resolve(comp);
+            });
+        }
     },
     "beforeDestroy":function(){
         $("body").removeClass("bg-gray01");
