@@ -148,9 +148,6 @@ COMP["alert-basic"] =Vue.extend({
             return $("#"+this.modal_id);
         },
     },
-    "components":{
-        "loading-bar":COMP['loading-bar'],
-    },
     "events":{
         "start":function(msg ,callback){
             this.msg_list=[msg];

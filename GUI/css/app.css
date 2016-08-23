@@ -11,6 +11,8 @@
   line-height: 1.8em;
   margin-bottom: 15px;
   font-size: 16px; }
+#main .markdown-body blockquote p {
+  margin-bottom: 5px; }
 #main .markdown-body h1, #main .markdown-body h2, #main .markdown-body h3 {
   margin: 15px;
   margin: 12px; }
