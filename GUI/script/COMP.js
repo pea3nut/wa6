@@ -222,6 +222,20 @@ COMP["markdown-body"] =Vue.extend({
     },
     "created":function(){
         $("body").addClass("bg-star01");
+        this.$watch("markdown" ,function(){
+
+            setTimeout(function(){
+                //增加索引
+                var pea =new jQuery.PeAIndex(3);
+                pea.addPrefix=true;
+                pea.prefix =pea.prefixTpl.zhTier;
+                pea.index();
+                //提高用户体验
+                $(".markdown-body a").prop("target" ,"_blank");
+                document.title =$("h1").html()+" - Web开发协会";
+            },0);
+
+        });
     },
     "beforeDestroy":function(){
         $("body").removeClass("bg-star01");
@@ -423,15 +437,7 @@ COMP["md-basic"] =Vue.extend({
 
                 vm.md_file =vm.cache[vm.$route.params.path] =reMsg;
 
-                //增加索引
-                var pea =new jQuery.PeAIndex(3);
-                pea.addPrefix=true;
-                pea.prefix =pea.prefixTpl.zhTier;
-                pea.index();
 
-                //提高用户体验
-                $(".markdown-body a").prop("target" ,"_blank");
-                document.title =$("h1").html()+" - Web开发协会";
 
                 transition.next();
             });
