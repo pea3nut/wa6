@@ -18,12 +18,35 @@
             margin-bottom: 15px;
             font-size:16px;
         }
+        p img:only-child{
+            border: 1px dotted #333;
+        }
         blockquote p{
             margin-bottom: 5px;
         }
         h1,h2,h3{
             margin: 15px;
             margin: 12px;
+        }
+        @media (max-width: 479px) {
+            h1,.h1 {
+              font-size: 25px;
+            }
+            h2,.h2 {
+              font-size: 22px;
+            }
+            h3,.h3 {
+              font-size: 20px;
+            }
+            h4,.h4 {
+              font-size: 18px;
+            }
+            h5,.h5 {
+              font-size: 14px;
+            }
+            h6,.h6 {
+              font-size: 12px;
+            }
         }
     }
     .main-body{
@@ -42,61 +65,108 @@
             &{
                 position: relative;
                 overflow: hidden;
-
+                *{
+                    position: relative;
+                    z-index: 200;
+                    clear: both;
+                }
                 .glyphicon{
                     position: absolute;
+                    z-index: 100;
                     font-size:150px;
+                }
+                p.foot-link{
+                    text-shadow: none !important;
                 }
 
             }
-
             &.non-profit{
-                background-color: #f8e1cb;
-
+                $bgColor: #f8e1cb;
+                background-color: $bgColor;
+                h2,p{
+                    text-shadow:0px 0px 3px $bgColor;
+                }
                 .glyphicon{
                     color: #dc7a24;
                     right: -35px;
                     top: -20px;
                 }
-
             }
             &.web{
-                background-color: #bbd7e3;
-
+                $bgColor: #bbd7e3;
+                background-color: $bgColor;
+                h2,p{
+                    text-shadow:0px 0px 3px $bgColor;
+                }
                 .glyphicon{
                     color: #37a4d2;
                     right: -30px;
                     top: -20px;
                 }
-
             }
             &.geek{
-                background-color: #000;
+                $bgColor: #000;
+                background-color: $bgColor;
                 color: #fff;
-
+                h2,p{
+                    text-shadow:0px 0px 3px $bgColor;
+                }
                 .glyphicon{
                     font-size:200px;
                     right: -20px;
                     top: -75px;
                 }
-
                 .badge{
                     background-color: #FFF;
                     color: #000;
                 }
-
             }
             &.help{
-                background-color: #f6dbe1;
-
+                $bgColor: #f6dbe1;
+                background-color: $bgColor;
+                h2,p{
+                    text-shadow:0px 0px 3px $bgColor;
+                }
                 .glyphicon{
                     color: #dc254c;
                     right: -15px;
                     top: -17px;
                 }
-
             }
 
+        }
+
+        @media (max-width: 768px){
+            .jumbotron{
+                padding: 5px 15px;
+                h2{
+                    font-size: 18px;
+                }
+                p{
+                    font-size: 14px;
+                }
+                &.non-profit .glyphicon{
+                    font-size: 80px;
+                    right: -12px;
+                    top: -7px;
+                }
+                &.web .glyphicon{
+                    font-size: 80px;
+                    right: -10px;
+                    top: -7px;
+                }
+                &.geek .glyphicon{
+                    font-size: 100px;
+                    right: -15px;
+                    top: -40px;
+                }
+                &.help .glyphicon{
+                    font-size: 80px;
+                    right: -5px;
+                    top: -6px;
+                }
+
+            }
         }
     }
 
@@ -138,6 +208,32 @@
     .main-basic-carousel{
         padding:0;
         margin-bottom: 15px;
+    }
+}
+
+//展示首页
+.index-body{
+    background-color: #eee;
+    big{
+        font-size: 1.5em;
+        margin: 0 0.2em;
+    }
+
+    .index-text-group{
+        margin-top:50px;
+    }
+
+    .index-btn-group{
+        margin-top: 65px;
+    }
+
+    @media (max-width: 479px){
+        .index-head-group h3{
+            font-size: 18px;
+        }
+        .index-text-group p{
+            font-size: 14px;
+        }
     }
 }
 

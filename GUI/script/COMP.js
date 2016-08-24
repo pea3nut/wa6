@@ -232,6 +232,7 @@ COMP["markdown-body"] =Vue.extend({
                 pea.index();
                 //提高用户体验
                 $(".markdown-body a").prop("target" ,"_blank");
+                $(".markdown-body img").addClass("img-responsive");
                 document.title =$("h1").html()+" - Web开发协会";
             },0);
 

@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="renderer" content="webkit" />
+    <meta name="viewport" content="width=420px">
     <link rel="shortcut icon" href="/Public/Logo/nutjs.ico" type="image/x-icon" />
 
     <link rel="stylesheet" type="text/css" href="/Public/Library/bootstrap/css/bootstrap.css"/>

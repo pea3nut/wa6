@@ -11,11 +11,26 @@
   line-height: 1.8em;
   margin-bottom: 15px;
   font-size: 16px; }
+#main .markdown-body p img:only-child {
+  border: 1px dotted #333; }
 #main .markdown-body blockquote p {
   margin-bottom: 5px; }
 #main .markdown-body h1, #main .markdown-body h2, #main .markdown-body h3 {
   margin: 15px;
   margin: 12px; }
+@media (max-width: 479px) {
+  #main .markdown-body h1, #main .markdown-body .h1 {
+    font-size: 25px; }
+  #main .markdown-body h2, #main .markdown-body .h2 {
+    font-size: 22px; }
+  #main .markdown-body h3, #main .markdown-body .h3 {
+    font-size: 20px; }
+  #main .markdown-body h4, #main .markdown-body .h4 {
+    font-size: 18px; }
+  #main .markdown-body h5, #main .markdown-body .h5 {
+    font-size: 14px; }
+  #main .markdown-body h6, #main .markdown-body .h6 {
+    font-size: 12px; } }
 #main .main-body {
   padding-top: 15px; }
   #main .main-body h2 {
@@ -27,17 +42,28 @@
   #main .main-body .jumbotron {
     position: relative;
     overflow: hidden; }
+    #main .main-body .jumbotron * {
+      position: relative;
+      z-index: 200;
+      clear: both; }
     #main .main-body .jumbotron .glyphicon {
       position: absolute;
+      z-index: 100;
       font-size: 150px; }
+    #main .main-body .jumbotron p.foot-link {
+      text-shadow: none !important; }
   #main .main-body .jumbotron.non-profit {
     background-color: #f8e1cb; }
+    #main .main-body .jumbotron.non-profit h2, #main .main-body .jumbotron.non-profit p {
+      text-shadow: 0px 0px 3px #f8e1cb; }
     #main .main-body .jumbotron.non-profit .glyphicon {
       color: #dc7a24;
       right: -35px;
       top: -20px; }
   #main .main-body .jumbotron.web {
     background-color: #bbd7e3; }
+    #main .main-body .jumbotron.web h2, #main .main-body .jumbotron.web p {
+      text-shadow: 0px 0px 3px #bbd7e3; }
     #main .main-body .jumbotron.web .glyphicon {
       color: #37a4d2;
       right: -30px;
@@ -45,6 +71,8 @@
   #main .main-body .jumbotron.geek {
     background-color: #000;
     color: #fff; }
+    #main .main-body .jumbotron.geek h2, #main .main-body .jumbotron.geek p {
+      text-shadow: 0px 0px 3px #000; }
     #main .main-body .jumbotron.geek .glyphicon {
       font-size: 200px;
       right: -20px;
@@ -54,10 +82,35 @@
       color: #000; }
   #main .main-body .jumbotron.help {
     background-color: #f6dbe1; }
+    #main .main-body .jumbotron.help h2, #main .main-body .jumbotron.help p {
+      text-shadow: 0px 0px 3px #f6dbe1; }
     #main .main-body .jumbotron.help .glyphicon {
       color: #dc254c;
       right: -15px;
       top: -17px; }
+  @media (max-width: 768px) {
+    #main .main-body .jumbotron {
+      padding: 5px 15px; }
+      #main .main-body .jumbotron h2 {
+        font-size: 18px; }
+      #main .main-body .jumbotron p {
+        font-size: 14px; }
+      #main .main-body .jumbotron.non-profit .glyphicon {
+        font-size: 80px;
+        right: -12px;
+        top: -7px; }
+      #main .main-body .jumbotron.web .glyphicon {
+        font-size: 80px;
+        right: -10px;
+        top: -7px; }
+      #main .main-body .jumbotron.geek .glyphicon {
+        font-size: 100px;
+        right: -15px;
+        top: -40px; }
+      #main .main-body .jumbotron.help .glyphicon {
+        font-size: 80px;
+        right: -5px;
+        top: -6px; } }
 #main .header-block {
   font-size: 18px; }
 #main .header-block li a {
@@ -83,6 +136,21 @@
 #main .main-basic-carousel {
   padding: 0;
   margin-bottom: 15px; }
+
+.index-body {
+  background-color: #eee; }
+  .index-body big {
+    font-size: 1.5em;
+    margin: 0 0.2em; }
+  .index-body .index-text-group {
+    margin-top: 50px; }
+  .index-body .index-btn-group {
+    margin-top: 65px; }
+  @media (max-width: 479px) {
+    .index-body .index-head-group h3 {
+      font-size: 18px; }
+    .index-body .index-text-group p {
+      font-size: 14px; } }
 
 .bg-star01 {
   background: url("/image/bg-star01.jpg") repeat; }
