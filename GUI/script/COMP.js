@@ -126,6 +126,45 @@ COMP["alert-basic"] =Vue.extend({
 });
 
 //无依赖
+COMP["show-basic"] =Vue.extend({
+    "template":function(){/*
+        <div class="alert alert-info alert-dismissible container show-basic" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <strong>Note: </strong>{{{phrase[index]}}}
+        </div>
+    */}.parseString(),
+    "data":function(){return {
+        "phrase":[
+            "理论上，你点击页面的任何链接都不会导致页面重新刷新。这，就是单页应用的魅力！",
+            "搭建这个网站我们用了十种以上的开源库，这也是为什么我们坚持投身开源运动",
+            "Vue.js非常好用，但不支持IE8，因此这个网站也是不支持IE8及其以下",
+            "我们为了手机用户做了大量的优化，因此你在手机看到大部分的页面也将是正常的",
+            "网站底部的版权不是Cotyright而是Copyleft，这意味着你可以自由的使用本网站的所有内容",
+            "Nutjs团队是Web开发协会的运营支持团队，二者都是非盈利的",
+            "网站Logo中的“e”代表着大家熟悉的IE浏览器，同时也是enthusiasm（热情）的首字母",
+            "网站后端是由PHP语言驱动的，不过前端却可以完全不依赖它独立运行，这非常酷",
+            "或许你已经猜到了，wa6是Web开发协会官网第六次重构的版本",
+            '你可以通过<a href="http://github.com/pea3nut/wa6" target="_blank">Github</a>来获取这个网站的源码并实时掌握网站的更新情况'
+        ],
+        "index":null,
+    }},
+    "methods":{
+        "randomIndex":function(){
+            this.index =Math.floor(Math.random()*this.phrase.length);
+        },
+    },
+    "ready":function(){
+        this.randomIndex();
+
+        var vm =this;
+        $(window).on("hashchange" ,function(){
+            vm.randomIndex();
+        });
+    },
+    "beforeDestroy":function(){
+        $(window).off("hashchange" ,this.randomIndex);
+    },
+});
 COMP["main-basic"] =Vue.extend({
     "template":function(){/*
         <div id="carousel-example-generic" class="carousel slide container main-basic-carousel" data-ride="carousel">
@@ -290,12 +329,14 @@ COMP["signout-basic"] =Vue.extend({
 COMP["basic-frame"] =Vue.extend({
     "template":function(){/*
         <nutjs-nav></nutjs-nav>
+        <nutjs-show></nutjs-show>
         <slot></slot>
         <nutjs-foot></nutjs-foot>
     */}.parseString(),
     "components":{
         "nutjs-nav":COMP['nav-basic'],
         "nutjs-foot":COMP['foot-basic'],
+        "nutjs-show":COMP['show-basic'],
     },
 });
 COMP["form-basic"] =function(resolve){

@@ -133,6 +133,10 @@
   margin: 0 !important;
   padding: 0 !important;
   height: 65px; }
+#main .show-basic {
+  padding: 8px 15px !important; }
+  #main .show-basic a {
+    text-decoration: underline; }
 #main .main-basic-carousel {
   padding: 0;
   margin-bottom: 15px; }
