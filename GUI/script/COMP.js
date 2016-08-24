@@ -1,57 +1,4 @@
 //# 组件定义
-COMP["main-basic"] =Vue.extend({
-    "template":function(){/*
-        <div id="carousel-example-generic" class="carousel slide container main-basic-carousel" data-ride="carousel">
-            <!-- Indicators -->
-            <ol class="carousel-indicators">
-                <li data-target="#carousel-example-generic" data-slide-to="0" class="active"></li>
-                <li data-target="#carousel-example-generic" data-slide-to="1"></li>
-                <li data-target="#carousel-example-generic" data-slide-to="2"></li>
-            </ol>
-
-            <!-- Wrapper for slides -->
-            <div class="carousel-inner" role="listbox">
-                <div class="item active">
-                    <img src="/image/carousel-1.jpg">
-                </div>
-                <div class="item">
-                    <img src="/image/carousel-2.jpg">
-                </div>
-                <div class="item">
-                    <img src="/image/carousel-3.jpg">
-                </div>
-            </div>
-
-            <!-- Controls -->
-            <a class="left carousel-control" href="#carousel-example-generic" role="button" data-slide="prev">
-                <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
-                <span class="sr-only">Previous</span>
-            </a>
-            <a class="right carousel-control" href="#carousel-example-generic" role="button" data-slide="next">
-                <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
-                <span class="sr-only">Next</span>
-            </a>
-        </div>
-
-        <main-body></main-body>
-    */}.parseString(),
-    "created":function(){
-        $("body").addClass("bg-gray01");
-    },
-    "components":{
-        "main-body":function(resolve){
-            $.get("/GUI/tpl/main-body.html" ,function(reMsg){
-                var comp =Vue.extend({
-                    "template":reMsg,
-                });
-                resolve(comp);
-            });
-        }
-    },
-    "beforeDestroy":function(){
-        $("body").removeClass("bg-gray01");
-    },
-});
 COMP["user-check"] =Vue.extend({
     "data":function(){return {
         "is_login":null,
@@ -177,6 +124,61 @@ COMP["alert-basic"] =Vue.extend({
         },
     },
 });
+
+//无依赖
+COMP["main-basic"] =Vue.extend({
+    "template":function(){/*
+        <div id="carousel-example-generic" class="carousel slide container main-basic-carousel" data-ride="carousel">
+            <!-- Indicators -->
+            <ol class="carousel-indicators">
+                <li data-target="#carousel-example-generic" data-slide-to="0" class="active"></li>
+                <li data-target="#carousel-example-generic" data-slide-to="1"></li>
+                <li data-target="#carousel-example-generic" data-slide-to="2"></li>
+            </ol>
+
+            <!-- Wrapper for slides -->
+            <div class="carousel-inner" role="listbox">
+                <div class="item active">
+                    <img src="/image/carousel-1.jpg">
+                </div>
+                <div class="item">
+                    <img src="/image/carousel-2.jpg">
+                </div>
+                <div class="item">
+                    <img src="/image/carousel-3.jpg">
+                </div>
+            </div>
+
+            <!-- Controls -->
+            <a class="left carousel-control" href="#carousel-example-generic" role="button" data-slide="prev">
+                <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+                <span class="sr-only">Previous</span>
+            </a>
+            <a class="right carousel-control" href="#carousel-example-generic" role="button" data-slide="next">
+                <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+                <span class="sr-only">Next</span>
+            </a>
+        </div>
+
+        <main-body></main-body>
+    */}.parseString(),
+    "created":function(){
+        $("body").addClass("bg-gray01");
+    },
+    "components":{
+        "main-body":function(resolve){
+            $.get("/GUI/tpl/main-body.html" ,function(reMsg){
+                var comp =Vue.extend({
+                    "template":reMsg,
+                });
+                resolve(comp);
+            });
+        }
+    },
+    "beforeDestroy":function(){
+        $("body").removeClass("bg-gray01");
+    },
+});
 COMP["nav-basic"] =function(resolve){
     getThat([
         "/tpl/nav-basic.html",
@@ -265,6 +267,36 @@ COMP["radio-basic"] =Vue.extend({
     "props":["info"],
     "data":function(){return {
     }}
+});
+COMP["signout-basic"] =Vue.extend({
+    "route":{
+        "canActivate":function(transition){
+            console.log(transition);
+            transition.abort();
+            var that =this;
+            var reqUrl ="/API/MemberControl/SignOut";
+            VM['nutjs_alert'].$emit("start" ,"初始化队列");
+            VM['nutjs_alert'].$emit("add" ,"向服务器发送注销请求求","请求地址为："+reqUrl,"&nbsp;","等待响应中...");
+            $.get(reqUrl ,function(reMsg){
+                VM['user_check'].$emit('hook:created');
+                VM['nutjs_alert'].$emit("add" ,"&nbsp;" ,"注销成功");
+                VM['nutjs_alert'].$emit("end" ,800);
+            });
+        },
+    },
+});
+
+//有依赖
+COMP["basic-frame"] =Vue.extend({
+    "template":function(){/*
+        <nutjs-nav></nutjs-nav>
+        <slot></slot>
+        <nutjs-foot></nutjs-foot>
+    */}.parseString(),
+    "components":{
+        "nutjs-nav":COMP['nav-basic'],
+        "nutjs-foot":COMP['foot-basic'],
+    },
 });
 COMP["form-basic"] =function(resolve){
     var vm =this;
@@ -398,26 +430,24 @@ COMP["form-basic"] =function(resolve){
 };
 COMP["nutjs-main"] =Vue.extend({
     "template":function(){/*
-        <nutjs-nav></nutjs-nav>
-        <nutjs-index></nutjs-index>
-        <nutjs-foot></nutjs-foot>
+        <nutjs-frame>
+            <nutjs-index></nutjs-index>
+        </nutjs-frame>
     */}.parseString(),
     "components":{
-        "nutjs-nav":COMP['nav-basic'],
+        "nutjs-frame":COMP['basic-frame'],
         "nutjs-index":COMP['main-basic'],
-        "nutjs-foot":COMP['foot-basic'],
     }
 });
 COMP["md-basic"] =Vue.extend({
     "template":function(){/*
-        <nutjs-nav></nutjs-nav>
-        <nutjs-md :markdown="md_file"></nutjs-md>
-        <nutjs-foot></nutjs-foot>
+        <nutjs-frame>
+            <nutjs-md :markdown="md_file"></nutjs-md>
+        </nutjs-frame>
     */}.parseString(),
     "components":{
-        "nutjs-nav":COMP['nav-basic'],
+        "nutjs-frame":COMP['basic-frame'],
         "nutjs-md":COMP['markdown-body'],
-        "nutjs-foot":COMP['foot-basic'],
     },
     "data":function(){return {
         "md_file":"加载md文件中...",
@@ -435,39 +465,18 @@ COMP["md-basic"] =Vue.extend({
             var vm =this;
             vm.md_file="加载md文件中...";
             $.get("/API/MarkMaster/get/"+vm.$route.params.path,function(reMsg){
-
                 vm.md_file =vm.cache[vm.$route.params.path] =reMsg;
-
-
-
                 transition.next();
             });
 
         },
     },
 });
-COMP["signout-basic"] =Vue.extend({
-    "route":{
-        "canActivate":function(transition){
-            console.log(transition);
-            transition.abort();
-            var that =this;
-            var reqUrl ="/API/MemberControl/SignOut";
-            VM['nutjs_alert'].$emit("start" ,"初始化队列");
-            VM['nutjs_alert'].$emit("add" ,"向服务器发送注销请求求","请求地址为："+reqUrl,"&nbsp;","等待响应中...");
-            $.get(reqUrl ,function(reMsg){
-                VM['user_check'].$emit('hook:created');
-                VM['nutjs_alert'].$emit("add" ,"&nbsp;" ,"注销成功");
-                VM['nutjs_alert'].$emit("end" ,800);
-            });
-        },
-    },
-});
 COMP["member-basic"] =Vue.extend({
     "template":function(){/*
-        <nutjs-nav></nutjs-nav>
-        <nutjs-form :action="act"></nutjs-form>
-        <nutjs-foot></nutjs-foot>
+        <nutjs-frame>
+            <nutjs-form :action="act"></nutjs-form>
+        </nutjs-frame>
     */}.parseString(),
     "data":function(){return {
     }},
@@ -475,10 +484,9 @@ COMP["member-basic"] =Vue.extend({
         "act":function(){return this.$route.path.match(/.+\/(\w+)/)[1]},
     },
     "components":{
-        "nutjs-nav":COMP['nav-basic'],
+        "nutjs-frame":COMP['basic-frame'],
         "nutjs-form":COMP['form-basic'],
-        "nutjs-foot":COMP['foot-basic'],
-    },
+    }
 });
 
 
