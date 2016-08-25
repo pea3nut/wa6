@@ -44,14 +44,14 @@ router.map({
     "/":{
         "component":Vue.extend({
             "template": function(){/*
-                    <router-view></router-view>
+                <router-view></router-view>
             */}.parseString(),
             "route":{
                 "data":function(transition){
+                    VM['nutjs_tools'].$emit("urlChange");
                     if(this.$route.query.login ==1){
                         VM['user_check'].$emit("signin");
                     };
-                    VM['nutjs_tools'].$emit("urlChange");
                     transition.next();
                 },
             },

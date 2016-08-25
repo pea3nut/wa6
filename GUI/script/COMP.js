@@ -30,11 +30,15 @@ COMP["user-check"] =Vue.extend({
             var callbackUrl =location.protocol+"//"+location.host+"/qq_callback.html";
             var reqUrl ="/API/MemberControl/SignIn";
 
-            VM['nutjs_alert'].$emit("refresh");
+            var refreshAlert =function(){
+                VM['nutjs_alert'].$emit("refresh");
+            };
             VM['nutjs_alert'].$emit("start" ,"初始化队列" ,function(){
                 var exp =/[\?|&]login=1/;
                 router.replace(router.getThisPath().replace(exp ,"") ,true);
+                VM['nutjs_tools'].$emit("offceUrlChange" ,refreshAlert);
             });
+            VM['nutjs_tools'].$emit("onceUrlChange" ,refreshAlert);
             VM['nutjs_alert'].$emit("add" ,"开始服务器请求","请求地址为："+reqUrl,"&nbsp;","等待响应中...");
 
             $.get(reqUrl ,function(reMsg){
@@ -97,6 +101,7 @@ COMP["alert-basic"] =Vue.extend({
     },
     "events":{
         "start":function(msg ,callback){
+            this.$emit("refresh");
             this.msg_list=[msg];
             this.modalElt.modal('show');
             if(callback){
@@ -127,18 +132,27 @@ COMP["alert-basic"] =Vue.extend({
 COMP["tools-basic"] =Vue.extend({
     "data":function(){return {
         "urlChangeEvents":new Array(),
+        "urlChangeEventsOne":new Array(),
     }},
     "events":{
         "onUrlChange":function(fn){
             this.urlChangeEvents.push(fn);
         },
+        "onceUrlChange":function(fn){
+            this.urlChangeEventsOne.push(fn);
+        },
         "offUrlChange":function(fn){
             this.urlChangeEvents.$remove(fn);
+            this.urlChangeEventsOne.$remove(fn);
         },
         "urlChange":function(fn){
             for(var i=0 ;i <this.urlChangeEvents.length ;i++){
-                setTimeout(this.urlChangeEvents[i] ,0);
+                this.urlChangeEvents[i]();
             };
+            for(var i=0 ;i <this.urlChangeEventsOne.length ;i++){
+                this.urlChangeEventsOne[i]();
+            };
+            this.urlChangeEventsOne =new Array();
         },
 
     },
