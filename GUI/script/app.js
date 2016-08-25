@@ -1,3 +1,7 @@
+window.COMP={/*组件列表*/};
+window.VM={/*ViewModel列表*/};
+
+
 $(function(){
 
 Vue.directive("attr", {

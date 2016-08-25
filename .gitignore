@@ -5,3 +5,4 @@
 .project
 .sass-cache
 /API/Application/Home/Conf/config.php
+/GUI/script/CONF.js
