@@ -84,6 +84,9 @@ router.map({
             "/member/changeinfo":{
                 "component":COMP["member-basic"],
             },
+            "/member/profit":{
+                "component":COMP["profit-basic"],
+            },
             "/md/*path":{
                 "component":COMP["md-basic"],
             },

@@ -42,10 +42,11 @@
                 </li>
                 <li class="dropdown" v-if="is_login">
                     <a role="button" aria-haspopup="true" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-                        <span class="glyphicon glyphicon-user"></span> 花生PeA
+                        <span class="glyphicon glyphicon-user"></span> 个人中心
                         <span class="caret"></span>
                     </a>
                     <ul class="dropdown-menu">
+                        <li><a v-link="'/member/profit'">查看信息</a></li>
                         <li><a v-link="'/member/changeinfo'">更新资料</a></li>
                         <li role="separator" class="divider"></li>
                         <li><a v-link="'/member/signout'">Sign out</a></li>

@@ -92,7 +92,8 @@ COMP["alert-basic"] =Vue.extend({
             return 'modal-'+getRandomChar(8);
         })(),
         "msg_list":["开始执行任务"],
-        "_fn":function(){},
+        "callback":function(){},
+        "timer":null,
     }},
     "computed":{
         "modalElt":function(){
@@ -107,9 +108,9 @@ COMP["alert-basic"] =Vue.extend({
             if(callback){
                 var vm =this;
                 var elt =this.modalElt;
-                elt.on('hidden.bs.modal', vm._fn=function (e) {
-                    elt.off('hidden.bs.modal' ,vm._fn);
-                    callback.call(vm);
+                elt.on('hidden.bs.modal', vm.callback=function (e) {
+                    elt.off('hidden.bs.modal' ,vm.callback);
+                    vm.callback();
                 });
             }
         },
@@ -118,14 +119,16 @@ COMP["alert-basic"] =Vue.extend({
         },
         "end":function(time){
             var vm =this;
-            setTimeout(function(){
+            this.timer =setTimeout(function(){
                 vm.modalElt.modal('hide');
             } ,time);
         },
         "refresh":function(){
-            this.modalElt.off('hidden.bs.modal' ,this._fn);
-            this.msg_list=[];
+            clearTimeout(this.timer);
             this.modalElt.modal('hide');
+            this.modalElt.off('hidden.bs.modal' ,this.callback);
+            this.msg_list=[];
+            this.timer=null;
         },
     },
 });
@@ -193,7 +196,6 @@ COMP["show-basic"] =Vue.extend({
     "ready":function(){
         var vm =this;
         VM['nutjs_tools'].$emit("onUrlChange" ,vm.randomIndex =function(){
-            console.log("r");
             vm.index =Math.floor(Math.random()*vm.phrase.length);
         });
 
@@ -349,7 +351,6 @@ COMP["radio-basic"] =Vue.extend({
 COMP["signout-basic"] =Vue.extend({
     "route":{
         "canActivate":function(transition){
-            console.log(transition);
             transition.abort();
             var that =this;
             var reqUrl ="/API/MemberControl/SignOut";
@@ -394,7 +395,7 @@ COMP["form-basic"] =function(resolve){
                 "form":formConf,
             }},
             "methods":{
-                "_loadField":function(data){
+                "loadField":function(data){
                     for(var $name in data){
                         var elt =$("[name='"+$name+"']");
                         if(elt.length ==1){
@@ -421,7 +422,7 @@ COMP["form-basic"] =function(resolve){
                     var vm =this;
                     VM['nutjs_alert'].$emit("start" ,"拉取信息中...");
                     $.get("/API/MemberControl/GetInfo" ,function(reObj){
-                        vm._loadField(reObj);
+                        vm.loadField(reObj);
                         VM['nutjs_alert'].$emit("end" ,"&nbsp;");
                     });
                 },
@@ -429,7 +430,7 @@ COMP["form-basic"] =function(resolve){
                     var vm =this;
                     VM['nutjs_alert'].$emit("start" ,"拉取QQ信息中...");
                     $.getJSON("/API/MemberControl/GetQQInfo" ,function(reObj){
-                        vm._loadField({
+                        vm.loadField({
                             "gender":reObj['gender'] =="女"?2:1,
                             "nickname":reObj['nickname'],
                         });
@@ -566,6 +567,81 @@ COMP["member-basic"] =Vue.extend({
     "components":{
         "nutjs-frame":COMP['basic-frame'],
         "nutjs-form":COMP['form-basic'],
+    }
+});
+COMP["profit-basic"] =Vue.extend({
+    "template":function(){/*
+        <nutjs-frame>
+            <nutjs-profit :data="user_info"></nutjs-profit>
+        </nutjs-frame>
+    */}.parseString(),
+    "data":function(){return {
+        "nameMap":{
+            'id':"用户编号",
+            'nickname':"昵称",
+            'realname':"真实姓名",
+            'gender':"性别",
+            'phone':"手机号",
+            'wechat':"微信号",
+            'create_time':"注册时间"
+        },
+        "valueMap":{
+            "gender":function(val){
+                if(val ==2)
+                    return "女";
+                else
+                    return "男";
+            },
+        },
+        "user_info":{},
+    }},
+    "ready":function(){
+        var vm =this;
+        $.get("/API/MemberControl/GetInfo" ,function(reObj){
+            for(var key in reObj){
+                if(key in vm.valueMap){
+                    reObj[key] =vm.valueMap[key](reObj[key]);
+                };
+                if(key in vm.nameMap){
+                    reObj[vm.nameMap[key]] =reObj[key];
+                    delete reObj[key];
+                };
+            };
+            vm.user_info =reObj;
+        });
+    },
+    "components":{
+        "nutjs-frame":COMP['basic-frame'],
+        "nutjs-profit":function(resolve){
+
+            var comp =Vue.extend({
+                "template":function(){/*
+                    <div class="container my-body">
+                        <div class="col-xs-12 col-sm-9 col-md-6 center-block" style="float: none;">
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h1 class="panel-title">个人信息查看</h1>
+                                </div>
+                                <ul class="list-group panel-body">
+                                    <li class="list-group-item" v-for="(key ,value) of data">
+                                        <label for="name" class="col-sm-3 control-label">{{key}}</label>
+                                        <div class="col-sm-8">
+                                            {{value}}
+                                        </div>
+                                        <div class="clearfix"></div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                */}.parseString(),
+                "props":['data']
+            });
+
+            resolve(comp);
+
+
+        },
     }
 });
 

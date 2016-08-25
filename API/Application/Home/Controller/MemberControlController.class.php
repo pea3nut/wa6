@@ -8,6 +8,8 @@ include './../Public/Library/php-curl/curl.php';
 
 class MemberControlController extends Controller{
 
+    private $logs =array();
+
     public function SignUp(){
         test_login()
             or $this->ajaxReturn(array('errcode'=>ERR_NO_LOGIN,'errmsg'=>'登陆校验失败'))
@@ -74,6 +76,9 @@ class MemberControlController extends Controller{
         ;
     }
     public function GetInfo(){
+        test_login()
+            or $this->ajaxReturn(array('errcode'=>ERR_NO_LOGIN,'errmsg'=>'登陆校验失败'))
+        ;
         $mo =new UsersModel();
         $mo->where(array('open_id'=>session('qq_login.open_id')));
         $mo->field(array('id','nickname','realname','gender','phone','wechat','create_time'));
@@ -125,9 +130,12 @@ class MemberControlController extends Controller{
             'redirect_uri'=>'http://mnt.nutjs.com/qq_sign_in/callback.php',
         ));
         $reMsg =$response->body;
-        $reMsg ='access_token=D70DA18F37BDD828515017057B7D8BC8&expires_in=7776000&refresh_token=E5477CCC0E245E2056BD297750B54416';
+        array_push($this->logs ,'oauth2.0/token:'.$reMsg);
         $reArr =array();
-        if(!preg_match('/access_token=(\w+).+?refresh_token=(\w+)/' ,$reMsg ,$reArr)) return;
+        if(!preg_match('/access_token=(\w+).+?refresh_token=(\w+)/' ,$reMsg ,$reArr)){
+            array_push($this->logs ,'获取access_token失败，服务器返回'.$reMsg);
+            return;
+        };
         $return_data['access_token'] =$reArr[1];
         $return_data['refresh_token'] =$reArr[2];
 
@@ -137,9 +145,16 @@ class MemberControlController extends Controller{
             'access_token'=>$return_data['access_token'],
         ));
         $reMsg =$response->body;
+        array_push($this->logs ,'oauth2.0/me:'.$reMsg);
         $reArr =array();
-        if(!preg_match('/"client_id":"(\w+)".+"openid":"(\w+)"/' ,$reMsg ,$reArr)) return;
-        if(C('CLIENT_ID') !==$reArr[1])return;
+        if(!preg_match('/"client_id":"(\w+)".+"openid":"(\w+)"/' ,$reMsg ,$reArr)){
+            array_push($this->logs ,'获取openid失败，服务器返回'.$reMsg);
+            return;
+        };
+        if(C('CLIENT_ID') !==$reArr[1]){
+            array_push($this->logs ,'对比client_id失败，本地记录为'.C('CLIENT_ID').'，服务器返回'.$reArr[1]);
+            return;
+        };;
         $return_data['open_id']=$reArr[2];
 
         return $return_data;
