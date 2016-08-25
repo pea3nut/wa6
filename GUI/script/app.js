@@ -15,11 +15,13 @@ var compRoot =Vue.extend({
         <div id="main">
             <router-view></router-view>
             <nutjs-alert v-ref:nutjs_alert></nutjs-alert>
+            <nutjs-tools v-ref:nutjs_tools></user-check>
             <user-check v-ref:user_check></user-check>
         </div>
     */}.parseString(),
     "components":{
         "nutjs-alert":COMP["alert-basic"],
+        "nutjs-tools":COMP["tools-basic"],
         "user-check":COMP["user-check"],
     },
     "ready":function(){
@@ -45,6 +47,7 @@ router.map({
                     if(this.$route.query.login ==1){
                         VM['user_check'].$emit("signin");
                     };
+                    VM['nutjs_tools'].$emit("urlChange");
                     transition.next();
                 },
             },

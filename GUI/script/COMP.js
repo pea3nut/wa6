@@ -124,12 +124,32 @@ COMP["alert-basic"] =Vue.extend({
         },
     },
 });
+COMP["tools-basic"] =Vue.extend({
+    "data":function(){return {
+        "urlChangeEvents":new Array(),
+    }},
+    "events":{
+        "onUrlChange":function(fn){
+            this.urlChangeEvents.push(fn);
+        },
+        "offUrlChange":function(fn){
+            this.urlChangeEvents.$remove(fn);
+        },
+        "urlChange":function(fn){
+            for(var i=0 ;i <this.urlChangeEvents.length ;i++){
+                setTimeout(this.urlChangeEvents[i] ,0);
+            };
+        },
+
+    },
+});
+
 
 //无依赖
 COMP["show-basic"] =Vue.extend({
     "template":function(){/*
         <div class="alert alert-info alert-dismissible container show-basic" role="alert">
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <button @click="offEvent" type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
             <strong>Note: </strong>{{{phrase[index]}}}
         </div>
     */}.parseString(),
@@ -152,17 +172,22 @@ COMP["show-basic"] =Vue.extend({
         "randomIndex":function(){
             this.index =Math.floor(Math.random()*this.phrase.length);
         },
+        "offEvent":function(){
+            VM['nutjs_tools'].$emit("offUrlChange" ,this.randomIndex);
+        },
     },
     "ready":function(){
+        var vm =this;
+        VM['nutjs_tools'].$emit("onUrlChange" ,vm.randomIndex =function(){
+            console.log("r");
+            vm.index =Math.floor(Math.random()*vm.phrase.length);
+        });
+
         this.randomIndex();
 
-        var vm =this;
-        $(window).on("hashchange" ,function(){
-            vm.randomIndex();
-        });
     },
     "beforeDestroy":function(){
-        $(window).off("hashchange" ,this.randomIndex);
+        this.offEvent();
     },
 });
 COMP["main-basic"] =Vue.extend({

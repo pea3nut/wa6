@@ -137,6 +137,8 @@
   padding: 8px 15px !important; }
   #main .show-basic a {
     text-decoration: underline; }
+  #main .show-basic .close {
+    right: 0 !important; }
 #main .main-basic-carousel {
   padding: 0;
   margin-bottom: 15px; }
