@@ -2,6 +2,8 @@
 COMP["user-check"] =Vue.extend({
     "data":function(){return {
         "is_login":null,
+        "is_open":false,
+        "next_task":[],
         "state":null,
     }},
     "events":{
@@ -18,27 +20,48 @@ COMP["user-check"] =Vue.extend({
             });
         },
         "signin":function(callback){
-            if(this.is_login ===true) return;
+
+            var vm =this;
+
+            //直接调用或队列递归调用
+            callback =callback||this.next_task.shift();
+
+            //执行回调和队列回调
+            if(this.is_login ===true){
+                callback &&callback();//执行本次回调
+                if(vm.next_task.length !=0) setTimeout(function(){vm.emit("signin")} ,0);//执行队列回调
+                return;
+            }
+
+            //等待created钩子初始化完毕
             if(this.is_login ===null){
+                this.next_task.push(callback);
                 var unWatch =this.$watch("is_login" ,function(){
                     this.$emit("signin");
                     unWatch();
                 });
                 return;
             };
-            var that =this;
+
+
+            this.is_open =true;
+
+
             var callbackUrl =location.protocol+"//"+location.host+"/qq_callback.html";
             var reqUrl ="/API/MemberControl/SignIn";
 
-            var refreshAlert =function(){
-                VM['nutjs_alert'].$emit("refresh");
-            };
+            //URL改变时，终止登陆操作
+            var abortAlert =function(){VM['nutjs_alert'].$emit("abort")};
+            VM['nutjs_tools'].$emit("onceUrlChange" ,abortAlert);
             VM['nutjs_alert'].$emit("start" ,"初始化队列" ,function(){
-                var exp =/[\?|&]login=1/;
-                router.replace(router.getThisPath().replace(exp ,"") ,true);
-                VM['nutjs_tools'].$emit("offceUrlChange" ,refreshAlert);
+                VM['nutjs_tools'].$emit("offUrlChange" ,abortAlert);
+                callback &&callback();
+                vm.is_open =false;
+                //检测执行剩余的所有队列
+                if(vm.next_task.length !=0) setTimeout(function(){vm.emit("signin")} ,0);
             });
-            VM['nutjs_tools'].$emit("onceUrlChange" ,refreshAlert);
+
+
             VM['nutjs_alert'].$emit("add" ,"开始服务器请求","请求地址为："+reqUrl,"&nbsp;","等待响应中...");
 
             $.get(reqUrl ,function(reMsg){
@@ -58,6 +81,7 @@ COMP["user-check"] =Vue.extend({
                         return;
                     };
                     VM['nutjs_alert'].$emit("add" ,"&nbsp;" ,"响应成功，获取最终登陆令牌","刷新状态中...");
+
                     $.get("/API/MemberControl/SignInReal?token="+data['token']+"&code="+data['code'],function(realMsg){
                         VM['user_check'].$emit('hook:created' ,function(){
                             VM['nutjs_alert'].$emit("add" ,"&nbsp;" ,"刷新成功!");
@@ -92,8 +116,10 @@ COMP["alert-basic"] =Vue.extend({
             return 'modal-'+getRandomChar(8);
         })(),
         "msg_list":["开始执行任务"],
-        "callback":function(){},
         "timer":null,
+        "user":null,
+        "is_free":true,
+        "un_watch":null,
     }},
     "computed":{
         "modalElt":function(){
@@ -101,34 +127,50 @@ COMP["alert-basic"] =Vue.extend({
         },
     },
     "events":{
-        "start":function(msg ,callback){
-            this.$emit("refresh");
-            this.msg_list=[msg];
-            this.modalElt.modal('show');
-            if(callback){
-                var vm =this;
-                var elt =this.modalElt;
-                elt.on('hidden.bs.modal', vm.callback=function (e) {
-                    elt.off('hidden.bs.modal' ,vm.callback);
-                    vm.callback();
+        "start":function(msg ,callback ,user){
+            var vm =this;
+
+            //防止多次调用
+            if(this.is_free !==true){
+                this.un_watch &&this.un_watch();//停止上次的检测
+                //检测组件空闲时执行本次请求
+                this.un_watch =this.$watch("is_free" ,function(){
+                    vm.$emit("start" ,msg ,callback);
+                    vm.un_watch();
                 });
-            }
+                this.$emit("abort");//终止未执行完毕的任务
+                return;
+            };
+
+            //执行任务
+
+            //初始化组件状态
+            this.is_free =false;
+            this.user =user;
+            this.msg_list=new Array();
+            msg &&this.msg_list.push(msg);
+            this.modalElt.modal('show');
+            //绑定隐藏事件
+            var elt =this.modalElt;
+            elt.one('hidden.bs.modal', function () {
+                vm.user =null;
+                vm.is_free =true;
+                callback &&callback();
+            });
+
         },
         "add":function(){
             this.msg_list.push.apply(this.msg_list ,arguments);
         },
         "end":function(time){
-            var vm =this;
-            this.timer =setTimeout(function(){
+            this.timer =setTimeout(function(vm){
                 vm.modalElt.modal('hide');
-            } ,time);
+            } ,time ,this);
         },
-        "refresh":function(){
+        "abort":function(){
             clearTimeout(this.timer);
-            this.modalElt.modal('hide');
-            this.modalElt.off('hidden.bs.modal' ,this.callback);
-            this.msg_list=[];
             this.timer=null;
+            this.modalElt.modal('hide');
         },
     },
 });
@@ -381,65 +423,20 @@ COMP["basic-frame"] =Vue.extend({
 });
 COMP["form-basic"] =function(resolve){
     var vm =this;
-    getThat([
-        "/tpl/form-basic.html",
-        "/tpl/form-basic.json"
-    ],function(reMsg){
-
-        var formConf =_parse(reMsg[1]);
-
+    getThat({
+        "tpl"   :"/tpl/form-basic.html",
+        "field" :"/tpl/form-basic.json"
+    },function(reMsg){
         var comp =Vue.extend({
-            "template":reMsg[0],
-            "props":["action"],
+            "template":reMsg['tpl'],
+            "props":["action","success"],
             "data":function(){return {
-                "form":formConf,
+                "form":_parse(reMsg['field']),
+                "sign":null,
             }},
             "methods":{
-                "loadField":function(data){
-                    for(var $name in data){
-                        var elt =$("[name='"+$name+"']");
-                        if(elt.length ==1){
-                            elt.val(data[$name]);
-                        }else{
-                            elt.filter("[value='"+data[$name]+"']").prop("checked" ,true);
-                        };
-                    }
-                },
-                "changeinfo_success":function(){
-                    $("#_fb_from")
-                    .find("#_fb_showmsg")
-                    .showMsg({
-                        "style":"success",
-                        "msg":"修改成功",
-                        "times":2000,
-                    });
-                },
-                "signup_success":function(){
-                    router.goDefault('/main' ,true);
-                    VM['user_check'].$emit('hook:created');
-                },
-                "changeinfo_ready":function(){
-                    var vm =this;
-                    VM['nutjs_alert'].$emit("start" ,"拉取信息中...");
-                    $.get("/API/MemberControl/GetInfo" ,function(reObj){
-                        vm.loadField(reObj);
-                        VM['nutjs_alert'].$emit("end" ,"&nbsp;");
-                    });
-                },
-                "signup_ready":function(){
-                    var vm =this;
-                    VM['nutjs_alert'].$emit("start" ,"拉取QQ信息中...");
-                    $.getJSON("/API/MemberControl/GetQQInfo" ,function(reObj){
-                        vm.loadField({
-                            "gender":reObj['gender'] =="女"?2:1,
-                            "nickname":reObj['nickname'],
-                        });
-                        VM['nutjs_alert'].$emit("end" ,"&nbsp;");
-                    });
-                },
                 "sendAjax":function(){
                     var fm =$("#_fb_from");
-                    var sign =fm.find("#_fb_showmsg");
                     $.ajax({
                         "type"  :fm.prop("method"),
                         "url"   :fm.prop("action"),
@@ -448,23 +445,24 @@ COMP["form-basic"] =function(resolve){
                         "success":function(reObj){
                             switch(reObj['errcode']){
                                 case 0:
-                                    if(this[this.action+"_success"] instanceof Function){
-                                        this[this.action+"_success"].call(this);
-                                    };
+                                    this.success &&this.success();
                                     break;
                                 case 401:
                                     router.replace('?login=1');
                                     break;
                                 case 402:
                                     fm.find("[name='"+reObj['field']+"']").showFiledError();
-                                    sign.showMsg({
+                                    this.sign.showMsg({
                                         "style":"error",
                                         "msg":reObj['errmsg'],
                                     });
                                     break;
                                 case 403:
                                 case 404:
-                                    fm.find("#_fb_showmsg").html("错误："+reObj['errmsg']).show();
+                                    this.sign.showMsg({
+                                        "style":"error",
+                                        "msg":"错误："+reObj['errmsg'],
+                                    });
                                     break;
                             }
                         },
@@ -479,14 +477,22 @@ COMP["form-basic"] =function(resolve){
                 "form-radio":COMP['radio-basic'],
             },
             "ready":function(){
-                if(this[this.action+"_ready"] instanceof Function){
-                    this[this.action+"_ready"].call(this);
-                };
+                this.sign =$("#_fb_from").find("#_fb_showmsg");
             },
+            "events":{
+                "loadField":function(data){
+                    for(var $name in data){
+                        var elt =$("[name='"+$name+"']");
+                        if(elt.length ==1){
+                            elt.val(data[$name]);
+                        }else{
+                            elt.filter("[value='"+data[$name]+"']").prop("checked" ,true);
+                        };
+                    }
+                },
+            }
         });
         resolve(comp);
-
-
     });
 
     function _parse(jsonStr){
@@ -509,6 +515,89 @@ COMP["form-basic"] =function(resolve){
     };
 
 };
+COMP["signup-basic"] =Vue.extend({
+    "template":function(){/*
+        <nutjs-frame>
+            <from-basic action="signup" :success="success" v-ref:from></from-basic>
+        </nutjs-frame>
+    */}.parseString(),
+    "components":{
+        "nutjs-frame":COMP['basic-frame'],
+        "from-basic":COMP["form-basic"],
+    },
+    "methods":{
+        "success":function(){
+            router.goDefault('/main' ,true);
+            VM['user_check'].$emit('hook:created');
+        },
+    },
+    "events":{
+        "hook:ready":function(){
+            var vm =this;
+
+            if(VM['user_check'].is_login !==true){
+                VM['user_check'].$emit("signin" ,function(){
+                    vm.$emit("hook:ready");
+                });
+                return;
+            };
+
+            if(VM['user_check'].is_login !=="100"){
+                VM['nutjs_alert'].$emit("start" ,"本账号可以正常使用，无需注册" ,null ,this);
+                return;
+            };
+
+            VM['nutjs_alert'].$emit("start" ,"拉取QQ信息中..." ,null ,this);
+            $.getJSON("/API/MemberControl/GetQQInfo" ,function(reObj){
+                vm.$broadcast("loadField" ,{
+                    "gender":reObj['gender'] =="女"?2:1,
+                    "nickname":reObj['nickname'],
+                });
+                VM['nutjs_alert'].$emit("end" ,"&nbsp;");
+            });
+        },
+    },
+    "beforeDestroy":function(){
+        if(VM['nutjs_alert'].user ===this){
+            VM['nutjs_alert'].$emit("abort");
+        };
+    },
+});
+COMP["changeinfo-basic"] =Vue.extend({
+    "template":function(){/*
+        <nutjs-frame>
+            <from-basic action="changeinfo" :success="success" v-ref:from></from-basic>
+        </nutjs-frame>
+    */}.parseString(),
+    "components":{
+        "nutjs-frame":COMP['basic-frame'],
+        "from-basic":COMP["form-basic"],
+    },
+    "methods":{
+        "success":function(){console.log("signup-basic success");
+            this.$refs['from'].sign.showMsg({
+                "style":"success",
+                "msg":"修改成功",
+                "times":2000,
+            });
+        },
+    },
+    "events":{
+        "hook:ready":function(){
+            var vm =this;
+            VM['nutjs_alert'].$emit("start" ,"拉取信息中...");
+            $.get("/API/MemberControl/GetInfo" ,function(reObj){
+                vm.$broadcast("loadField" ,reObj);
+                VM['nutjs_alert'].$emit("end" ,"&nbsp;");
+            });
+        },
+    },
+    "beforeDestroy":function(){
+        if(VM['nutjs_alert'].user ===this){
+            VM['nutjs_alert'].$emit("abort");
+        };
+    },
+});
 COMP["nutjs-main"] =Vue.extend({
     "template":function(){/*
         <nutjs-frame>

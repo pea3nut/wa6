@@ -50,7 +50,10 @@ router.map({
                 "data":function(transition){
                     VM['nutjs_tools'].$emit("urlChange");
                     if(this.$route.query.login ==1){
-                        VM['user_check'].$emit("signin");
+                        VM['user_check'].$emit("signin" ,function(){
+                            var exp =/[\?|&]login=1/;
+                            router.replace(router.getThisPath().replace(exp ,"") ,true);
+                        });
                     };
                     transition.next();
                 },
@@ -70,19 +73,10 @@ router.map({
                 "component":COMP["signout-basic"],
             },
             "/member/signup":{
-                "component":{
-                    "extends":COMP["member-basic"],
-                    "route":{"data":function(transition){
-                        if(transition.to.query.login !=1){
-                            router.replace({"query":$.extend({} ,transition.to.query, {"login":1})});
-                        }else{
-                            transition.next();
-                        };
-                    }}
-                },
+                "component":COMP["signup-basic"],
             },
             "/member/changeinfo":{
-                "component":COMP["member-basic"],
+                "component":COMP["changeinfo-basic"]
             },
             "/member/profit":{
                 "component":COMP["profit-basic"],
@@ -101,18 +95,19 @@ router.start(compRoot, 'nutjs-app');
 //函数定义
 function getThat(list ,callback){
     var successNum =0;
-    var data =new Array(list.length);
-    for(var i=0 ;i<list.length ;i++){
-        $.get(list[i] ,null ,
-            (function(){
-                var index=i;
+    var listLength =0;
+    var data ={};
+    for(var key in list) listLength++;
+    for(var key in list){
+        $.get(list[key] ,null ,
+            (function(key){
                 return function(reMsg){
-                    data[index] =reMsg;
-                    if(++successNum === list.length){
+                    data[key] =reMsg;
+                    if(++successNum === listLength){
                         callback(data);
                     };
                 }
-            })(i)
+            })(key)
         ,"text");
     };
 };
