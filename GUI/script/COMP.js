@@ -535,17 +535,17 @@ COMP["signup-basic"] =Vue.extend({
         },
     },
     "events":{
-        "hook:ready":function(){
+        "hook:attached":function(){
             var vm =this;
 
             if(VM['user_check'].is_login !==true){
                 VM['user_check'].$emit("signin" ,function(){
-                    vm.$emit("hook:ready");
+                    vm.$emit("hook:attached");
                 });
                 return;
             };
 
-            if(VM['user_check'].is_login !=="100"){
+            if(VM['user_check'].state !=="100"){
                 VM['nutjs_alert'].$emit("start" ,"本账号可以正常使用，无需注册" ,null ,this);
                 return;
             };
@@ -586,11 +586,11 @@ COMP["changeinfo-basic"] =Vue.extend({
         },
     },
     "events":{
-        "hook:ready":function(){
+        "hook:attached":function(){
             var vm =this;
             VM['nutjs_alert'].$emit("start" ,"拉取信息中...");
             $.get("/API/MemberControl/GetInfo" ,function(reObj){
-                vm.$broadcast("loadField" ,reObj);
+                $(function(){vm.$refs['from'].$emit("loadField" ,reObj)});
                 VM['nutjs_alert'].$emit("end" ,"&nbsp;");
             });
         },
