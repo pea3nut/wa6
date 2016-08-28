@@ -1,11 +1,27 @@
-<meta property="qc:admins" content="66217334446654236375711731767167" />
-<script>
-    var res =document.URL.match(/\?code=(\w+)&state=(\w+)/);
-    var data ={
-        "code":res[1],
-        "token":res[2],
-    };
-    window.opener.SIGNIN(data);
-    window.open('/','_self');
-    window.close();
-</script>
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="renderer" content="webkit" />
+        <meta property="qc:admins" content="66217334446654236375711731767167" />
+        <script>
+            var res =document.URL.match(/\?code=(\w+)&state=(\w+)/);
+            if(res ===null){
+                document.body.innerHTML ="出错！请尝试使用Firefox或Chrome浏览器登陆。";
+            }else{
+                var data ={
+                    "code":res[1],
+                    "token":res[2],
+                };
+                window.opener.SIGNIN(data);
+                window.open('/','_self');
+                window.close();
+            };
+        </script>
+        <title>QQ登陆回调页</title>
+    </head>
+    <body>
+    </body>
+</html>
+
