@@ -200,9 +200,23 @@ $.fn.extend({
     },
 });
 VueRouter.prototype.goDefault =function(path ,replace){
+
     var target =this._default_url ||path;
     delete this._default_url;
+
+
+    if(this.getThisPath() ===target){
+        if(target ===path){
+            return console.warn("要前往的路径与当前路径相同！"+path);
+        }else{
+            target =path;
+        };
+    };
+
+
     replace ?this.replace(target) :this.go(target);
+
+
 };
 VueRouter.prototype.getThisPath =function(url){
     var exp =/^.+?\/\/.+?(\/.*)$/
