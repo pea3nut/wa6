@@ -43,16 +43,9 @@ Web开发协会是一个非盈利机构，我们并没有资金去聘请讲师�
 
 ## 其他
 
-[Web开发是什么？](/web/rightforme)
+[Web开发是什么？](/web/whatis)
 
 [Web开发是否适合我？](/web/rightforme)
 
 [Web开发协会简介](/about/brief)
-
-
-
-
-
-
-
 

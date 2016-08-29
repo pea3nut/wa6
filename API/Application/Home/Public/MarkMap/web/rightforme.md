@@ -61,11 +61,9 @@ Web开发不是一个机遇、一场赌博，不是几个周通宵奋战就可�
 
 ## 其他
 
-[Web开发是什么？](/web/rightforme)
+[Web开发是什么？](/web/whatis)
+
+[Web开发是否适合我？](/web/rightforme)
 
 [Web开发协会简介](/about/brief)
-
-[如何加入Web开发协会](/about/joinus)
-
-
 

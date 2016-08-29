@@ -89,7 +89,7 @@ Web开发协会要怎么做？
 
 ## 其他
 
-[Web开发是什么？](/web/rightforme)
+[Web开发是什么？](/web/whatis)
 
 [Web开发是否适合我？](/web/rightforme)
 

@@ -81,10 +81,9 @@ Web开发是通过写代码来实现的。完整的搭建一整个网站一般�
 
 ## 其他
 
-[Web开发是什么？](/web/rightforme)
-
 [Web开发是否适合我？](/web/rightforme)
 
-[如何加入Web开发协会](/about/joinus)
+[Web开发协会简介](/about/brief)
 
+[如何加入Web开发协会](/about/joinus)
 
