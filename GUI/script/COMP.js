@@ -505,6 +505,7 @@ COMP["nav-basic"] =function(resolve){
             "data": function(){
                 return {
                     "list":JSON.parse(reMsg[1]),
+                    "icon_text":CONF['icon_text'],
                     "icon":["book","briefcase"]
                 };
             },
