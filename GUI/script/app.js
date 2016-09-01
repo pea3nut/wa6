@@ -1,8 +1,12 @@
 window.COMP={/*组件列表*/};
 window.VM={/*ViewModel列表*/};
 
+$.getJSON("/API/MemberControl/SignIn" ,function(reObj){
+    CONF['login_token'] =reObj['token'];
+});
 
 $(function(){
+
 
 Vue.directive("attr", {
     "update": function (newAttr) {
@@ -18,21 +22,26 @@ var compRoot =Vue.extend({
     "template": function(){/*
         <div id="main">
             <router-view></router-view>
-            <nutjs-alert v-ref:nutjs_alert></nutjs-alert>
-            <nutjs-tools v-ref:nutjs_tools></user-check>
-            <user-check v-ref:user_check></user-check>
+
+            <nutjs-alert    v-ref:nutjs_alert></nutjs-alert>
+            <nutjs-cmd      v-ref:nutjs_cmd></nutjs-cmd>
+            <nutjs-confirm  v-ref:nutjs_confirm></nutjs-confirm>
+
+            <nutjs-tools    v-ref:nutjs_tools></user-tools>
+            <user-check     v-ref:user_check></user-check>
         </div>
     */}.parseString(),
     "components":{
-        "nutjs-alert":COMP["alert-basic"],
-        "nutjs-tools":COMP["tools-basic"],
-        "user-check":COMP["user-check"],
+        "nutjs-cmd"     :COMP["alert-cmd"],
+        "nutjs-alert"   :COMP["alert-simple"],
+        "nutjs-confirm" :COMP["confirm-basic"],
+        "nutjs-tools"   :COMP["tools-basic"],
+        "user-check"    :COMP["user-check"],
     },
     "ready":function(){
         window.VM=this.$refs;
     },
 });
-
 window.router = new VueRouter({
     "history":true,
 });
@@ -49,12 +58,6 @@ router.map({
             "route":{
                 "data":function(transition){
                     VM['nutjs_tools'].$emit("urlChange");
-                    if(this.$route.query.login ==1){
-                        VM['user_check'].$emit("signin" ,function(){
-                            var exp =/[\?|&]login=1/;
-                            router.replace(router.getThisPath().replace(exp ,"") ,true);
-                        });
-                    };
                     transition.next();
                 },
             },

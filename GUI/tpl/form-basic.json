@@ -2,7 +2,7 @@
     "signup":{
         "action":"/API/MemberControl/signup",
         "method":"post",
-        "title":"用户注册",
+        "title":"用户注册 - 进一步补填资料",
         "fields":[
             {
                 "label":"昵称",

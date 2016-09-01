@@ -14,7 +14,7 @@
 
         <div class="collapse navbar-collapse" id="nav-list">
             <p v-if="!is_login" class="navbar-text navbar-right">
-                <a target="_self" v-link="{query:{login:1},replace:true}" class="navbar-link"><img src="http://qzonestyle.gtimg.cn/qzone/vas/opensns/res/img/Connect_logo_1.png" alt="" />QQ登陆</a>
+                <a target="_self" href="#login" @click.prevent="signin" class="navbar-link"><img src="http://qzonestyle.gtimg.cn/qzone/vas/opensns/res/img/Connect_logo_1.png" alt="" />QQ登陆</a>
                 /
                 <a target="_self" v-link="'/member/signup'" class="navbar-link">注册</a>
             </p>

@@ -2,8 +2,6 @@
 COMP["user-check"] =Vue.extend({
     "data":function(){return {
         "is_login":null,
-        "is_open":false,
-        "next_task":[],
         "state":null,
     }},
     "events":{
@@ -14,94 +12,189 @@ COMP["user-check"] =Vue.extend({
                 vm.state =reMsg.state;
                 onSuccess &&onSuccess();
                 if(vm.state =='100'){
-                    router.trackThis(document.URL.replace(/[\?|&]login=1/ ,''));
+                    router.trackThis();
                     router.go('/member/signup');
                 };
             });
         },
-        "signin":function(callback){
+        "signin":function(onSuccess){
 
             var vm =this;
 
-            //直接调用或队列递归调用
-            callback =callback||this.next_task.shift();
-
             //执行回调和队列回调
             if(this.is_login ===true){
-                callback &&callback();//执行本次回调
-                if(vm.next_task.length !=0) setTimeout(function(){vm.emit("signin")} ,0);//执行队列回调
-                return;
+                return true;
             }
 
             //等待created钩子初始化完毕
             if(this.is_login ===null){
-                this.next_task.push(callback);
                 var unWatch =this.$watch("is_login" ,function(){
-                    this.$emit("signin");
                     unWatch();
+                    this.$emit("signin");
                 });
                 return;
             };
 
-
-            this.is_open =true;
-
-
             var callbackUrl =location.protocol+"//"+location.host+"/qq_callback.html";
-            var reqUrl ="/API/MemberControl/SignIn";
-
-            //URL改变时，终止登陆操作
-            var abortAlert =function(){VM['nutjs_alert'].$emit("abort")};
-            VM['nutjs_tools'].$emit("onceUrlChange" ,abortAlert);
-            VM['nutjs_alert'].$emit("start" ,"初始化队列" ,function(){
-                VM['nutjs_tools'].$emit("offUrlChange" ,abortAlert);
-                callback &&callback();
-                vm.is_open =false;
-                //检测执行剩余的所有队列
-                if(vm.next_task.length !=0) setTimeout(function(){vm.emit("signin")} ,0);
-            });
+            var target ="https://graph.qq.com/oauth2.0/authorize?response_type=code"
+                +"&client_id="+CONF['client_id']
+                +"&redirect_uri="+encodeURI(callbackUrl)
+                +"&state="+CONF['login_token']
+            ;
+            window.open(
+                target
+                ,"_blank"
+                ,"height=600,width=1000,top=0,left=0,toolbar=no,menubar=no,scrollbars=auto,resizable=yes,location=no,status=no"
+            );
 
 
-            VM['nutjs_alert'].$emit("add" ,"开始服务器请求","请求地址为："+reqUrl,"&nbsp;","等待响应中...");
-
-            $.get(reqUrl ,function(reMsg){
-                VM['nutjs_alert'].$emit("add" ,"&nbsp;" ,"服务器返回令牌："+reMsg['token'] ,"打开登陆链接");
-                var target ="https://graph.qq.com/oauth2.0/authorize?response_type=code"
-                        +"&client_id="+CONF['client_id']
-                        +"&redirect_uri="+encodeURIComponent(callbackUrl)
-                        +"&state="
-                        +reMsg['token']
-                window.open(
-                    "/redirect.html?"+encodeURI(target)
-                    ,"_blank"
-                    ,"height=600,width=1000,top=0,left=0,toolbar=no,menubar=no,scrollbars=auto,resizable=yes,location=no,status=no"
-                );
-
-
-                window.SIGNIN =function(data){
-                    if(data['token'] !== reMsg['token']){
-                        VM['nutjs_alert'].$emit("add" ,"错误：令牌不符！请求令牌为："+data['token']);
-                        return;
-                    };
-                    VM['nutjs_alert'].$emit("add" ,"&nbsp;" ,"响应成功，获取最终登陆令牌","刷新状态中...");
-
-                    $.get("/API/MemberControl/SignInReal?token="+data['token']+"&code="+data['code'],function(realMsg){
-                        VM['user_check'].$emit('hook:created' ,function(){
-                            VM['nutjs_alert'].$emit("add" ,"&nbsp;" ,"刷新成功!");
-                            VM['nutjs_alert'].$emit("end" ,1000);
-                        });
-                        delete window.SIGNIN;
+            window.SIGNIN =function(data){
+                if(data['token'] !== CONF['login_token']){
+                    VM['nutjs_alert'].$emit("start" ,{
+                        "msg":"错误：令牌不符！请求令牌为："+data['token'],
+                        "user":vm,
                     });
+                    return;
                 };
 
-                VM['nutjs_alert'].$emit("add" ,"&nbsp;" ,"打开事件端口window.SIGNIN，等待响应中..." ,"若未弹出登陆窗口，请解除浏览器对网站的弹窗拦截");
-            });
+                $.get("/API/MemberControl/SignInReal?token="+data['token']+"&code="+data['code'],function(reObj){
+                    if(reObj['errcode'] === "0"){
+                        VM['user_check'].$emit('hook:created' ,onSuccess);
+                        delete window.SIGNIN;
+                    }else{
+                        VM['nutjs_alert'].$emit("start" ,{
+                            "msg" :reObj['errcode']+"错误："+reObj['errmsg'],
+                        });
+                    };
+                });
+            };
 
 
         },
     }
 })
-COMP["alert-basic"] =Vue.extend({
+COMP["modal-basic"] =Vue.extend({
+    "data":function(){return {
+        "modal_id":(function(){
+            return 'modal-'+getRandomChar(8);
+        })(),
+        "task_list":[],
+        "is_free":true,
+        "user":NaN,
+        "temp_fn":null,
+    }},
+    "computed":{
+        "modalElt":function(){
+            return $("#"+this.modal_id);
+        },
+    },
+    "events":{
+        /**
+         * @param {Object} options 选项
+         * - user 辨别多次调用的标识符
+         * */
+        "start":function(options){
+
+            //允许多次调用
+            if(this.is_free !==true){
+                this.task_list.push(options);//添加队列
+                return;
+            };
+
+            this.is_free =false;
+            this.user =options.user;
+
+            var vm =this;
+            VM["nutjs_tools"].$emit("onceUrlChange" ,this.temp_fn =function(){
+                vm.$emit("abort");
+            });
+
+        },
+        "next":function(time){
+
+            this.$emit("abort");
+            if(this.task_list.length !==0){
+                this.$emit("start" ,this.task_list.shift());
+            }
+
+        },
+        "abort":function(){
+
+            this.is_free =true;
+            this.user =NaN;
+
+            VM["nutjs_tools"].$emit("offUrlChange" ,this.temp_fn);
+            this.temp_fn =null;
+
+
+        },
+    },
+});
+COMP["alert-simple"] ={
+    "mixins":[COMP["modal-basic"]],
+    "template":function(){/*
+        <div class="modal bs-example-modal-sm" :id="modal_id">
+            <div class="modal-dialog modal-sm" style="margin-top:100px">
+                <div class="modal-content">
+                    <div class="modal-body">
+                        <p>{{{msg}}}</p>
+                        <div class="text-right">
+                            <button type="button" class="btn btn-info btn-sm" data-dismiss="modal">确定</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    */}.parseString(),
+    "data":function(){return {
+        "msg":"",
+    }},
+    "events":{
+        /**
+         * @param {Object} options 选项
+         * - callback 当窗口隐藏时的回调函数
+         * - msg 提示信息
+         * */
+        "start":function(options){
+
+            if(options.user !==this.user) return;
+
+            //必要的初始化工作
+            this.msg =options.msg ||"OK";
+            this.callback =options.callback;
+            this.modalElt.modal('show');
+
+            //绑定隐藏事件
+            var vm =this;
+            this.modalElt.one('hidden.bs.modal', function(){
+                vm.callback &&vm.callback();
+                vm.callback =null;
+                vm.$emit("next");
+            });
+
+        },
+        "end":function(caller){
+            if(caller ===this.user){
+                this.$emit("abort");
+            }else if(!Number.isNaN(caller)){
+                for(var i=0 ;i<this.task_list.length ;i++){
+                    if(this.task_list[i].user ===caller){
+                        this.task_list[i].callback &&this.task_list[i].callback();
+                        this.task_list.splice(i,1);
+                        return;
+                    };
+                };
+                console.warn("alert-simple::end未找到标识符：");
+                console.warn(caller);
+            };
+        },
+        "abort":function(){
+            this.modalElt.modal('hide');
+        },
+    },
+};
+COMP["alert-cmd"] ={
+    "mixins":[COMP["modal-basic"]],
     "template":function(){/*
         <div class="modal fade alert-basic-modal" :id="modal_id">
             <div class="modal-dialog">
@@ -115,60 +208,78 @@ COMP["alert-basic"] =Vue.extend({
         </div>
     */}.parseString(),
     "data":function(){return {
-        "modal_id":(function(){
-            return 'modal-'+getRandomChar(8);
-        })(),
         "msg_list":["开始执行任务"],
         "timer":null,
-        "user":null,
-        "is_free":true,
-        "un_watch":null,
     }},
-    "computed":{
-        "modalElt":function(){
-            return $("#"+this.modal_id);
-        },
-    },
     "events":{
-        "start":function(msg ,callback ,user){
-            var vm =this;
+        /**
+         * @param {Object} options 选项
+         * - callback 当窗口隐藏时的回调函数
+         * */
+        "start":function(options){
 
-            //防止多次调用
-            if(this.is_free !==true){
-                this.un_watch &&this.un_watch();//停止上次的检测
-                //检测组件空闲时执行本次请求
-                this.un_watch =this.$watch("is_free" ,function(){
-                    vm.$emit("start" ,msg ,callback);
-                    vm.un_watch();
-                });
-                this.$emit("abort");//终止未执行完毕的任务
-                return;
-            };
+            if(options.user !==this.user) return;
 
-            //执行任务
-
-            //初始化组件状态
-            this.is_free =false;
-            this.user =user;
+            //必要的初始化工作
             this.msg_list=new Array();
-            msg &&this.msg_list.push(msg);
             this.modalElt.modal('show');
+
+
+            $.extend(this ,options);
+
+
             //绑定隐藏事件
-            var elt =this.modalElt;
-            elt.one('hidden.bs.modal', function () {
-                vm.user =null;
-                vm.is_free =true;
-                callback &&callback();
+            var vm =this;
+            this.modalElt.one('hidden.bs.modal', function () {
+                vm.callback &&vm.callback();
+                vm.callback =null;
+                vm.$emit("next");
             });
 
         },
+        /**
+         * @param {mixed} user 标识符
+         * @param {String} ...msg 要添加的信息
+         * */
         "add":function(){
-            this.msg_list.push.apply(this.msg_list ,arguments);
+            var argn =[];
+            Array.prototype.push.apply(argn ,arguments);
+            var caller =argn.shift();
+            if(caller ===this.user){
+                Array.prototype.push.apply(this.msg_list ,argn);
+            }else{
+                for(var i=0 ;i<this.task_list.length ;i++){
+                    if(this.task_list[i].user ===caller){
+                        if(this.task_list[i].msg_list instanceof Array){
+                            Array.prototype.push.apply(this.task_list[i].msg_list ,argn);
+                        }else{
+                            this.task_list[i].msg_list =argn;
+                        };
+                        return;
+                    };
+                };
+                console.warn("add未找到标识符：");
+                console.warn(caller);
+                console.warn("丢弃"+argn);
+            };
         },
-        "end":function(time){
-            this.timer =setTimeout(function(vm){
-                vm.modalElt.modal('hide');
-            } ,time ,this);
+        "end":function(caller ,time){
+            if(caller ===this.user){
+                var obj =this.user;
+                this.timer =setTimeout(function(vm){
+                    vm.user===obj &&vm.$emit("abort");
+                } ,time ,this);
+            }else if(!Number.isNaN(caller)){
+                for(var i=0 ;i<this.task_list.length ;i++){
+                    if(this.task_list[i].user ===caller){
+                        this.task_list[i].callback &&this.task_list[i].callback();
+                        this.task_list.splice(i,1);
+                        return;
+                    };
+                }
+                console.warn("alert-cmd::end未找到标识符：");
+                console.warn(caller);
+            };
         },
         "abort":function(){
             clearTimeout(this.timer);
@@ -176,7 +287,88 @@ COMP["alert-basic"] =Vue.extend({
             this.modalElt.modal('hide');
         },
     },
-});
+};
+COMP["confirm-basic"] ={
+    "mixins":[COMP["modal-basic"]],
+    "template":function(){/*
+        <div class="modal fade bs-example-modal-sm" :id="modal_id">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" @click="no" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title">{{{title}}}</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p>{{{msg}}}</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger" @click="no">取消</button>
+                        <button type="button" class="btn btn-success" @click="ok">确定</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    */}.parseString(),
+    "data":function(){return {
+        "msg":"",
+        "title":"",
+    }},
+    "methods":{
+        "ok":function(){
+            this.$emit("end" ,this.user ,true);
+        },
+        "no":function(){
+            this.$emit("end" ,this.user ,false);
+        },
+    },
+    "events":{
+        /**
+         * @param {Object} options 选项
+         * - callback 当窗口隐藏时的回调函数，回调是会携带一个bool参数
+         * - msg 提示信息
+         * */
+        "start":function(options){
+
+            if(options.user !==this.user) return;
+
+            //必要的初始化工作
+            this.msg =options.msg ||"请确认你的操作";
+            this.title =options.title ||"你的确定要这么做吗？";
+            this.callback =options.callback;
+            this.modalElt.modal('show');
+
+
+            //绑定隐藏事件
+            var vm =this;
+            this.modalElt.one('hidden.bs.modal', function(){
+                vm.$emit("next");
+            });
+
+        },
+        "end":function(caller ,res){
+            if(caller ===this.user){
+                this.callback &&this.callback(res);
+                this.callback =null;
+                this.$emit("abort");
+            }else if(!Number.isNaN(caller)){
+                for(var i=0 ;i<this.task_list.length ;i++){
+                    if(this.task_list[i].user ===caller){
+                        this.task_list[i].callback(res);
+                        this.task_list.splice(i,1);
+                        return;
+                    };
+                }
+                console.warn("end未找到标识符：");
+                console.warn(caller);
+            };
+        },
+        "abort":function(){
+            this.callback &&this.callback(res);
+            this.callback =null;
+            this.modalElt.modal('hide');
+        },
+    },
+};
 COMP["tools-basic"] =Vue.extend({
     "data":function(){return {
         "urlChangeEvents":new Array(),
@@ -205,7 +397,6 @@ COMP["tools-basic"] =Vue.extend({
 
     },
 });
-
 
 //无依赖
 COMP["show-basic"] =Vue.extend({
@@ -270,7 +461,7 @@ COMP["main-basic"] =Vue.extend({
                     <img src="/image/carousel-2.jpg">
                 </div>
                 <div class="item">
-                    <img src="/image/carousel-3.jpg">
+                    <a target="_blank" href="https://github.com/pea3nut/wa6"><img src="/image/carousel-3.jpg"></a>
                 </div>
             </div>
 
@@ -316,6 +507,11 @@ COMP["nav-basic"] =function(resolve){
                     "list":JSON.parse(reMsg[1]),
                     "icon":["book","briefcase"]
                 };
+            },
+            "methods":{
+                "signin":function(){
+                    VM['user_check'].$emit("signin");
+                },
             },
             "computed":{
                 "is_login":function(){
@@ -399,12 +595,18 @@ COMP["signout-basic"] =Vue.extend({
             transition.abort();
             var that =this;
             var reqUrl ="/API/MemberControl/SignOut";
-            VM['nutjs_alert'].$emit("start" ,"初始化队列");
-            VM['nutjs_alert'].$emit("add" ,"向服务器发送注销请求求","请求地址为："+reqUrl,"&nbsp;","等待响应中...");
+            VM['nutjs_cmd'].$emit("start" ,{
+                "msg_list":["初始化队列"],
+                "user":this,
+            });
+            VM['nutjs_cmd'].$emit("add" ,this ,"向服务器发送注销请求求","请求地址为："+reqUrl,"&nbsp;","等待响应中...");
             $.get(reqUrl ,function(reMsg){
                 VM['user_check'].$emit('hook:created');
-                VM['nutjs_alert'].$emit("add" ,"&nbsp;" ,"注销成功");
-                VM['nutjs_alert'].$emit("end" ,800);
+                VM['nutjs_cmd'].$emit("add" ,that ,"&nbsp;" ,"注销成功");
+                VM['nutjs_cmd'].$emit("end" ,that ,800);
+                $.getJSON("/API/MemberControl/SignIn" ,function(reObj){
+                    CONF['login_token'] =reObj['token'];
+                });
             });
         },
     },
@@ -451,7 +653,7 @@ COMP["form-basic"] =function(resolve){
                                     this.success &&this.success();
                                     break;
                                 case 401:
-                                    router.replace('?login=1');
+                                    VM['user_check'].$emit("signin");
                                     break;
                                 case 402:
                                     fm.find("[name='"+reObj['field']+"']").showFiledError();
@@ -538,25 +740,46 @@ COMP["signup-basic"] =Vue.extend({
         "hook:attached":function(){
             var vm =this;
 
+
+            if(VM['user_check'].is_login ===null){
+                var unWatch =VM['user_check'].$watch("is_login" ,function(){
+                    unWatch();
+                    vm.$emit("hook:attached");
+                });
+                return;
+            };
+
+
             if(VM['user_check'].is_login !==true){
+                VM['nutjs_alert'].$emit("start",{
+                    "user":this,
+                    "msg":"请先登录",
+                });
                 VM['user_check'].$emit("signin" ,function(){
+                    VM['nutjs_alert'].$emit("end" ,vm);
                     vm.$emit("hook:attached");
                 });
                 return;
             };
 
             if(VM['user_check'].state !=="100"){
-                VM['nutjs_alert'].$emit("start" ,"本账号可以正常使用，无需注册" ,null ,this);
+                VM['nutjs_alert'].$emit("start" ,{
+                    "msg":"本账号可以正常使用，无需注册",
+                    "user":this,
+                });
                 return;
             };
 
-            VM['nutjs_alert'].$emit("start" ,"拉取QQ信息中..." ,null ,this);
+            VM['nutjs_cmd'].$emit("start" ,{
+                "msg":"拉取QQ信息中...",
+                "user":this,
+            });
             $.getJSON("/API/MemberControl/GetQQInfo" ,function(reObj){
                 vm.$broadcast("loadField" ,{
                     "gender":reObj['gender'] =="女"?2:1,
                     "nickname":reObj['nickname'],
                 });
-                VM['nutjs_alert'].$emit("end" ,"&nbsp;");
+                VM['nutjs_cmd'].$emit("end" ,vm);
             });
         },
     },
@@ -588,10 +811,13 @@ COMP["changeinfo-basic"] =Vue.extend({
     "events":{
         "hook:attached":function(){
             var vm =this;
-            VM['nutjs_alert'].$emit("start" ,"拉取信息中...");
+            VM['nutjs_cmd'].$emit("start" ,{
+                "msg_list" :["拉取信息中..."],
+                "user" :vm,
+            });
             $.get("/API/MemberControl/GetInfo" ,function(reObj){
                 $(function(){vm.$refs['from'].$emit("loadField" ,reObj)});
-                VM['nutjs_alert'].$emit("end" ,"&nbsp;");
+                VM['nutjs_cmd'].$emit("end" ,vm);
             });
         },
     },
